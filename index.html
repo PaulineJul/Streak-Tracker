@@ -12,9 +12,10 @@
 }
 *{box-sizing:border-box}
 html,body{margin:0;background:transparent;color:var(--ink);font-family:"Segoe UI",system-ui,-apple-system,Helvetica,Arial,sans-serif}
-.wrap{max-width:880px;margin:0 auto;padding:16px}
+.wrap{position:absolute;top:0;left:0;transform-origin:top left;padding:16px}
+body{overflow-x:hidden}
 .cols{display:grid;grid-template-columns:1fr;gap:22px;margin-top:22px}
-@media (min-width:660px){.cols{grid-template-columns:1fr 1fr}}
+.wide .cols{grid-template-columns:1fr 1fr}
 .right{display:flex;flex-direction:column}
 .medals{flex:1;border:2px dashed var(--ring);border-radius:22px;padding:18px 16px;display:flex;flex-direction:column;justify-content:center;gap:16px;background:rgba(127,127,127,.12)}
 .medals h2{margin:0;font-size:14px;font-weight:600;color:var(--soft)}
@@ -59,7 +60,7 @@ button:focus-visible{outline:3px solid var(--pale);outline-offset:2px}
 </style>
 </head>
 <body>
-<div class="wrap"><div class="card">
+<div class="wrap" id="wrap"><div class="card">
   <h1 id="title">Jeg mødte op i dag</h1>
   <div class="barrow"><div class="bar"><i id="fill"></i></div><b id="pct">0%</b></div>
   <div class="cols"><div class="left"><div class="phases" id="phases"></div>
@@ -225,7 +226,21 @@ button:focus-visible{outline:3px solid var(--pale);outline-offset:2px}
   $("sw").addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;S.theme=b.dataset.k;save();render()});
   $("sMode").addEventListener("change",function(){S.mode=this.value;save();render()});
   try{matchMedia("(prefers-color-scheme:dark)").addEventListener("change",function(){if(S.mode==="auto")render()})}catch(e){}
-  render();
+  function fit(){
+    var w=$("wrap"),vw=document.documentElement.clientWidth,vh=window.innerHeight;
+    if(!vw||!vh)return;
+    var wide=vw>=520,W=wide?880:440;
+    document.body.classList.toggle("wide",wide);
+    w.style.width=W+"px";
+    var H=w.offsetHeight,s=Math.min(1,vw/W);
+    if(wide&&!$("set").classList.contains("open"))s=Math.min(s,vh/H);
+    s=Math.max(s,.3);
+    w.style.transform="scale("+s+")";
+    w.style.left=Math.max(0,(vw-W*s)/2)+"px";
+  }
+  window.addEventListener("resize",fit);
+  try{new ResizeObserver(fit).observe($("wrap"))}catch(e){}
+  render();fit();
 })();
 </script>
 </body>
