@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Streak Tracker</title>
+<style>
+:root{
+  --bg:#1b1b1d;--card:#293a50;--ink:#e7edf3;--soft:#9fb0c3;--track:#727c86;--ring:#4a5a6e;
+  --accent:#4a7fb8;--pale:#c3d0da;--pale-ink:#2c5a8f;--on-track:#fff;--on-accent:#fff;
+  box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:transparent;color:var(--ink);font-family:"Segoe UI",system-ui,-apple-system,Helvetica,Arial,sans-serif}
+.wrap{max-width:880px;margin:0 auto;padding:16px}
+.cols{display:grid;grid-template-columns:1fr;gap:22px;margin-top:22px}
+@media (min-width:660px){.cols{grid-template-columns:1fr 1fr}}
+.right{display:flex;flex-direction:column}
+.medals{flex:1;border:2px dashed var(--ring);border-radius:22px;padding:18px 16px;display:flex;flex-direction:column;justify-content:center;gap:16px;background:rgba(127,127,127,.12)}
+.medals h2{margin:0;font-size:14px;font-weight:600;color:var(--soft)}
+.m{display:flex;align-items:center;gap:14px}
+.m svg{width:54px;height:54px;flex:none}
+.m b{display:block;font-size:14px;font-weight:700}
+.m span{font-size:12px;color:var(--soft)}
+.m.locked b{color:var(--soft)}
+.ends{margin-top:12px;text-align:center;font-size:13px;font-weight:600;color:var(--soft)}
+.card{background:var(--card);border-radius:28px;padding:22px 20px;border:1px solid var(--ring)}
+h1{margin:4px 0 16px;text-align:center;font-size:22px;font-weight:700;color:var(--soft)}
+.bar{height:30px;border-radius:15px;background:var(--track);overflow:hidden;position:relative}
+.bar i{display:block;height:100%;background:var(--accent);border-radius:15px;min-width:6px;transition:width .4s}
+.barrow{display:flex;align-items:center;gap:10px}.barrow .bar{flex:1}.barrow b{font-size:13px;min-width:38px;text-align:right;color:var(--soft)}
+.phases{display:flex;justify-content:space-between;margin:0 0 6px}
+.ph{background:none;border:0;color:var(--ink);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:8px;font:inherit;font-weight:600;font-size:13px;width:31%}
+.ph span{width:62px;height:62px;border-radius:50%;background:conic-gradient(var(--accent) var(--p,0%),var(--track) 0);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--ink);position:relative}
+.ph.on span{box-shadow:0 0 0 3px var(--card),0 0 0 5px var(--pale)}
+.ph span em{position:relative;font-style:normal}
+.ph span::before{content:"";position:absolute;inset:7px;border-radius:50%;background:var(--card)}
+.lbl{margin:16px 0 8px;font-size:13px;font-weight:600;color:var(--soft)}
+.grid{display:grid;grid-template-columns:repeat(6,1fr);gap:10px 8px;justify-items:center}
+.d{width:100%;max-width:44px;aspect-ratio:1;border-radius:50%;border:2px solid var(--ring);background:none;color:var(--soft);font:inherit;font-size:13px;font-weight:600;cursor:pointer;padding:0}
+.d.done{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.d.today{border-style:dashed;border-color:var(--pale);color:var(--ink)}
+.d.done.today{border-style:solid;box-shadow:0 0 0 3px var(--card),0 0 0 5px var(--pale)}
+.d.future{opacity:.55}
+.btns{display:flex;gap:10px;margin-top:20px}
+.btns button{flex:1;padding:14px 8px;border-radius:14px;border:2px solid var(--ring);background:var(--track);color:var(--on-track);font:inherit;font-weight:600;font-size:14px;cursor:pointer}
+.btns button.main{background:var(--pale);color:var(--pale-ink);border-color:var(--pale);flex:1.3}
+button:focus-visible{outline:3px solid var(--pale);outline-offset:2px}
+.set{margin-top:16px;padding:14px;border-radius:16px;background:rgba(0,0,0,.15);display:none;gap:10px;flex-direction:column;font-size:13px}
+.set.open{display:flex}
+.set label{display:flex;flex-direction:column;gap:4px;color:var(--soft);font-weight:600}
+.set input,.set select{padding:9px 10px;border-radius:10px;border:1px solid var(--ring);background:rgba(127,127,127,.14);color:var(--ink);font:inherit}
+.lbl2{color:var(--soft);font-weight:600}
+.sw{display:flex;gap:12px;padding:4px 2px}
+.sw button{width:40px;height:40px;border-radius:50%;border:2px solid var(--ring);cursor:pointer;padding:0}
+.sw button.on{box-shadow:0 0 0 3px var(--card),0 0 0 5px var(--pale)}
+.set .row{display:flex;gap:8px}.set .row label{flex:1}
+.msg{margin-top:12px;text-align:center;font-size:13px;color:var(--soft);min-height:1.2em}
+</style>
+</head>
+<body>
+<div class="wrap"><div class="card">
+  <h1 id="title">Jeg mødte op i dag</h1>
+  <div class="barrow"><div class="bar"><i id="fill"></i></div><b id="pct">0%</b></div>
+  <div class="cols"><div class="left"><div class="phases" id="phases"></div>
+  <div class="lbl" id="lbl"></div>
+  <div class="grid" id="grid"></div>
+  <div class="btns">
+    <button class="main" id="today">I dag</button>
+    <button id="reset">Nulstil</button>
+    <button id="settings">Indstillinger</button>
+  </div>
+  </div>
+  <div class="right"><div class="medals" id="medals"></div><div class="ends" id="ends"></div></div>
+  </div>
+  <div class="set" id="set">
+    <div class="lbl2">Tema</div><div class="sw" id="sw"></div>
+    <label>Udseende<select id="sMode"><option value="auto">Automatisk (følger enheden)</option><option value="light">Lys</option><option value="dark">Mørk</option></select></label>
+    <div class="row">
+      <label>Startdato<input type="date" id="sStart"></label>
+      <label>Slutdato<input type="date" id="sEnd"></label>
+    </div>
+    <label>Fase 1<input id="n0" maxlength="20"></label>
+    <label>Fase 2<input id="n1" maxlength="20"></label>
+    <label>Fase 3<input id="n2" maxlength="20"></label>
+  </div>
+  <div class="msg" id="msg"></div>
+</div></div>
+<script>
+(function(){
+  var KEY="streak-tracker-v1";
+  function iso(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
+  var def={days:90,start:iso(new Date()),names:["Fundament","Momentum","Afslut stærkt"],done:[],theme:"skumring",mode:"auto"};
+  var S=def;
+  try{var raw=localStorage.getItem(KEY);if(raw){S=Object.assign({},def,JSON.parse(raw))}}catch(e){}
+  function addDays(s,n){var d=new Date(s+"T00:00:00");d.setDate(d.getDate()+n);return iso(d)}
+  if(!S.end)S.end=addDays(S.start,S.days-1);
+  function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+  var KEYS=["card","ink","soft","track","ring","accent","pale","pale-ink","on-track","on-accent"];
+  var T={
+    skumring:{n:"Skumring",d:["#293a50","#e7edf3","#9fb0c3","#66717d","#4a5a6e","#4a7fb8","#c3d0da","#2c5a8f","#ffffff","#ffffff"],l:["#e4ecf5","#22364d","#556a82","#b9c6d4","#9db0c4","#3f6ea6","#2c4a6e","#ffffff","#22364d","#ffffff"]},
+    skov:{n:"Skov",d:["#24362f","#e4efe9","#9bb8aa","#5f7469","#43594e","#4f9a77","#bfd8cb","#255a42","#ffffff","#ffffff"],l:["#e3efe8","#1f3a2e","#526f60","#b7cbbf","#99b3a5","#3c8460","#2a5440","#ffffff","#1f3a2e","#ffffff"]},
+    sand:{n:"Sand",d:["#3a3229","#f0e8dc","#bfae98","#6f6455","#574c3e","#c08a4a","#e0d0b8","#6a4513","#ffffff","#2a1d0c"],l:["#f1e9dc","#3b2f21","#7a6a55","#d3c6b0","#bfae94","#a8702f","#4a3a28","#ffffff","#3b2f21","#ffffff"]},
+    grafit:{n:"Grafit",d:["#2b2c2f","#ececee","#a2a4a9","#5e6066","#46484d","#d9dadd","#d9dadd","#2b2c2f","#ffffff","#1f2023"],l:["#ececee","#1f2023","#66686e","#c4c6cb","#a9abb1","#2b2c2f","#2b2c2f","#ffffff","#1f2023","#ffffff"]},
+    blomme:{n:"Blomme",d:["#3a2a3f","#f1e6f2","#bda3c2","#6d5873","#55415b","#a76bb0","#dcc3e0","#5c2f66","#ffffff","#ffffff"],l:["#f1e5f2","#3a2540","#7b5f82","#d6c3da","#bda3c4","#8a4f94","#52305a","#ffffff","#3a2540","#ffffff"]}
+  };
+  function resolved(){
+    if(S.mode==="dark")return "d";if(S.mode==="light")return "l";
+    try{return matchMedia("(prefers-color-scheme:dark)").matches?"d":"l"}catch(e){return "d"}
+  }
+  function applyTheme(){
+    var t=T[S.theme]||T.skumring,m=resolved(),v=t[m],r=document.documentElement.style;
+    KEYS.forEach(function(k,i){r.setProperty("--"+k,v[i])});
+    r.colorScheme=m==="d"?"dark":"light";
+  }
+  var $=function(id){return document.getElementById(id)};
+  var view=null;
+  function todayNo(){
+    var a=new Date(S.start+"T00:00:00"),b=new Date();b.setHours(0,0,0,0);
+    return Math.round((b-a)/864e5)+1;
+  }
+  function size(){return Math.ceil(S.days/3)}
+  function phaseOf(n){return Math.min(2,Math.floor((n-1)/size()))}
+  function render(){
+    var t=todayNo(),sz=size();
+    if(view===null)view=phaseOf(Math.min(Math.max(t,1),S.days));
+    var done=S.done.filter(function(n){return n>=1&&n<=S.days});
+    var p=Math.round(done.length/S.days*100);
+    $("fill").style.width=p+"%";$("pct").textContent=p+"%";
+    var ph="";
+    for(var i=0;i<3;i++){
+      var lo=i*sz+1,hi=Math.min(S.days,(i+1)*sz),tot=Math.max(0,hi-lo+1);
+      var c=done.filter(function(n){return n>=lo&&n<=hi}).length;
+      var pp=tot?Math.round(c/tot*100):0;
+      ph+='<button class="ph'+(i===view?" on":"")+'" data-i="'+i+'"><div style="font-weight:600">'+esc(S.names[i])+'</div><span style="--p:'+pp+'%"><em>'+(pp?pp+"%":"")+'</em></span></button>';
+    }
+    $("phases").innerHTML=ph;
+    var a=view*sz+1,b=Math.min(S.days,(view+1)*sz);
+    var cur=Math.min(Math.max(t,1),S.days);
+    $("lbl").textContent="Dag "+cur+" af "+S.days+" · "+a+"–"+b;
+    var g="";
+    for(var n=a;n<=b;n++){
+      var cls="d"+(done.indexOf(n)>-1?" done":"")+(n===t?" today":"")+(n>t?" future":"");
+      g+='<button class="'+cls+'" data-n="'+n+'" aria-label="Dag '+n+'">'+n+'</button>';
+    }
+    $("grid").innerHTML=g;
+    $("today").disabled=false;
+    applyTheme();
+    var sw="";
+    Object.keys(T).forEach(function(k){var v=T[k][resolved()];sw+='<button class="'+(k===S.theme?"on":"")+'" data-k="'+k+'" title="'+T[k].n+'" aria-label="Tema '+T[k].n+'" style="background:linear-gradient(135deg,'+v[0]+' 50%,'+v[5]+' 50%)"></button>'});
+    $("sw").innerHTML=sw;$("sMode").value=S.mode;
+    var mh='<h2>Medaljer</h2>';
+    medals().forEach(function(m){mh+='<div class="m'+(m.got?"":" locked")+'">'+medalSvg(m)+'<div><b>'+esc(m.n)+'</b><span>'+(m.got?m.ok:m.todo)+'</span></div></div>'});
+    $("medals").innerHTML=mh;
+    $("ends").textContent="Slutter "+new Date(S.end+"T00:00:00").toLocaleDateString("da-DK",{day:"numeric",month:"long",year:"numeric"});
+    $("sStart").value=S.start;$("sEnd").value=S.end;
+    for(var k=0;k<3;k++)$("n"+k).value=S.names[k];
+  }
+  function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+  function msg(t){$("msg").textContent=t;setTimeout(function(){$("msg").textContent=""},2500)}
+  function medals(){
+    var d=S.done.filter(function(n){return n>=1&&n<=S.days}),sz=size();
+    var res=[{n:"Kom godt fra start",ok:"Første dag klaret",todo:"Markér din første dag",c:"var(--accent)",got:d.length>0}];
+    var cols=["#b87333","#aeb7c0","#e0b44a"];
+    for(var i=0;i<3;i++){
+      var lo=i*sz+1,hi=Math.min(S.days,(i+1)*sz),c=d.filter(function(n){return n>=lo&&n<=hi}).length;
+      res.push({n:S.names[i],ok:"Fasen er fuldført",todo:"Fuldfør alle dage i fasen",c:cols[i],got:hi>=lo&&c===hi-lo+1});
+    }
+    return res;
+  }
+  function medalSvg(m){
+    var s='<svg viewBox="0 0 54 54" aria-hidden="true">';
+    if(m.got){
+      s+='<path d="M16 2h9l5 18h-9z" style="fill:var(--accent)"/><path d="M38 2h-9l-5 18h9z" style="fill:var(--pale)"/>';
+      s+='<circle cx="27" cy="35" r="16" style="fill:'+m.c+'" stroke="rgba(0,0,0,.28)" stroke-width="2"/>';
+      s+='<circle cx="27" cy="35" r="11.5" fill="none" stroke="rgba(255,255,255,.5)" stroke-width="1.5"/>';
+      s+='<polygon points="27,28 28.9,32.6 33.8,33 30.1,36.2 31.2,41 27,38.4 22.8,41 23.9,36.2 20.2,33 25.1,32.6" fill="rgba(255,255,255,.92)"/>';
+    }else{
+      s+='<circle cx="27" cy="27" r="22" style="fill:var(--track);opacity:.55"/>';
+      s+='<rect x="19" y="27" width="16" height="12" rx="2.5" style="fill:none;stroke:var(--soft)" stroke-width="2.2"/>';
+      s+='<path d="M22 27v-4a5 5 0 0 1 10 0v4" style="fill:none;stroke:var(--soft)" stroke-width="2.2"/>';
+    }
+    return s+'</svg>';
+  }
+  function toggle(n){
+    var before=medals().filter(function(m){return m.got}).length;
+    var i=S.done.indexOf(n);
+    if(i>-1)S.done.splice(i,1);else S.done.push(n);
+    save();render();
+    var now=medals().filter(function(m){return m.got});
+    if(now.length>before){var nm=now[now.length-1].n;msg("Ny medalje: "+nm);return nm}
+    return null;
+  }
+  $("grid").addEventListener("click",function(e){
+    var el=e.target.closest(".d");if(!el)return;
+    var n=+el.dataset.n;
+    if(n>todayNo()){msg("Den dag er ikke kommet endnu");return}
+    toggle(n);
+  });
+  $("phases").addEventListener("click",function(e){
+    var el=e.target.closest(".ph");if(!el)return;
+    view=+el.dataset.i;render();
+  });
+  $("today").addEventListener("click",function(){
+    var t=todayNo();
+    if(t<1||t>S.days){msg("I dag ligger uden for dit forløb");return}
+    if(S.done.indexOf(t)>-1){msg("Du har allerede markeret i dag");return}
+    var nm=toggle(t);if(!nm)msg("Godt gået. Dag "+t+" er klaret");
+  });
+  var armed=false;
+  $("reset").addEventListener("click",function(){
+    if(!armed){armed=true;msg("Tryk Nulstil igen for at slette alle dage");setTimeout(function(){armed=false},3500);return}
+    S.done=[];S.start=iso(new Date());S.end=addDays(S.start,S.days-1);armed=false;save();view=null;render();msg("Nulstillet");
+  });
+  $("settings").addEventListener("click",function(){$("set").classList.toggle("open")});
+  function onSet(){
+    var st=$("sStart").value||S.start,en=$("sEnd").value||S.end;
+    var d=Math.round((new Date(en+"T00:00:00")-new Date(st+"T00:00:00"))/864e5)+1;
+    if(d<3||d>366){msg("Slutdato skal ligge mindst 3 dage efter startdato");render();return}
+    S.start=st;S.end=en;S.days=d;
+    for(var k=0;k<3;k++)S.names[k]=$("n"+k).value||def.names[k];
+    save();view=null;render();
+  }
+  ["sEnd","sStart","n0","n1","n2"].forEach(function(id){$(id).addEventListener("change",onSet)});
+  $("sw").addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;S.theme=b.dataset.k;save();render()});
+  $("sMode").addEventListener("change",function(){S.mode=this.value;save();render()});
+  try{matchMedia("(prefers-color-scheme:dark)").addEventListener("change",function(){if(S.mode==="auto")render()})}catch(e){}
+  render();
+})();
+</script>
+</body>
+</html>
