@@ -14,37 +14,41 @@
 html,body{margin:0;background:transparent;color:var(--ink);font-family:"Segoe UI",system-ui,-apple-system,Helvetica,Arial,sans-serif}
 .wrap{position:absolute;top:0;left:0;transform-origin:top left;padding:16px}
 body{overflow-x:hidden}
-.cols{display:grid;grid-template-columns:1fr;gap:22px;margin-top:22px}
-.wide .cols{grid-template-columns:1fr 1fr}
+.cols{display:grid;grid-template-columns:1fr;gap:14px;margin-top:14px}
+.wide .cols{grid-template-columns:1fr 210px}
 .right{display:flex;flex-direction:column}
-.medals{flex:1;border:2px dashed var(--ring);border-radius:22px;padding:18px 16px;display:flex;flex-direction:column;justify-content:center;gap:16px;background:rgba(127,127,127,.12)}
-.medals h2{margin:0;font-size:14px;font-weight:600;color:var(--soft)}
-.m{display:flex;align-items:center;gap:14px}
-.m svg{width:54px;height:54px;flex:none}
-.m b{display:block;font-size:14px;font-weight:700}
-.m span{font-size:12px;color:var(--soft)}
+.medals{border:2px dashed var(--ring);border-radius:16px;padding:10px 8px;display:grid;grid-template-columns:repeat(4,1fr);gap:8px 4px;background:rgba(127,127,127,.12);align-items:start}
+.medals h2{grid-column:1/-1;margin:0;font-size:12px;font-weight:600;color:var(--soft)}
+.m{display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center}
+.m svg{width:38px;height:38px;flex:none}
+.m b{display:block;font-size:11px;font-weight:700;line-height:1.2}
+.m span{display:none}
 .m.locked b{color:var(--soft)}
-.ends{margin-top:12px;text-align:center;font-size:13px;font-weight:600;color:var(--soft)}
-.card{background:var(--card);border-radius:28px;padding:22px 20px;border:1px solid var(--ring)}
-h1{margin:4px 0 16px;text-align:center;font-size:22px;font-weight:700;color:var(--soft)}
-.bar{height:30px;border-radius:15px;background:var(--track);overflow:hidden;position:relative}
-.bar i{display:block;height:100%;background:var(--accent);border-radius:15px;min-width:6px;transition:width .4s}
+.wide .medals{flex:1;grid-template-columns:1fr;align-content:center;gap:10px;padding:12px}
+.wide .m{flex-direction:row;text-align:left;gap:10px}
+.wide .m svg{width:40px;height:40px}
+.wide .m span{display:block;font-size:11px;color:var(--soft)}
+.ends{margin-top:8px;text-align:center;font-size:12px;font-weight:600;color:var(--soft)}
+.card{background:var(--card);border-radius:22px;padding:16px;border:1px solid var(--ring)}
+h1{margin:0 0 10px;text-align:center;font-size:19px;font-weight:700;color:var(--soft)}
+.bar{height:20px;border-radius:10px;background:var(--track);overflow:hidden;position:relative}
+.bar i{display:block;height:100%;background:var(--accent);border-radius:10px;min-width:6px;transition:width .4s}
 .barrow{display:flex;align-items:center;gap:10px}.barrow .bar{flex:1}.barrow b{font-size:13px;min-width:38px;text-align:right;color:var(--soft)}
 .phases{display:flex;justify-content:space-between;margin:0 0 6px}
-.ph{background:none;border:0;color:var(--ink);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:8px;font:inherit;font-weight:600;font-size:13px;width:31%}
-.ph span{width:62px;height:62px;border-radius:50%;background:conic-gradient(var(--accent) var(--p,0%),var(--track) 0);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--ink);position:relative}
+.ph{background:none;border:0;color:var(--ink);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:5px;font:inherit;font-weight:600;font-size:12px;width:31%}
+.ph span{width:50px;height:50px;border-radius:50%;background:conic-gradient(var(--accent) var(--p,0%),var(--track) 0);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--ink);position:relative}
 .ph.on span{box-shadow:0 0 0 3px var(--card),0 0 0 5px var(--pale)}
 .ph span em{position:relative;font-style:normal}
-.ph span::before{content:"";position:absolute;inset:7px;border-radius:50%;background:var(--card)}
-.lbl{margin:16px 0 8px;font-size:13px;font-weight:600;color:var(--soft)}
-.grid{display:grid;grid-template-columns:repeat(6,1fr);gap:10px 8px;justify-items:center}
-.d{width:100%;max-width:44px;aspect-ratio:1;border-radius:50%;border:2px solid var(--ring);background:none;color:var(--soft);font:inherit;font-size:13px;font-weight:600;cursor:pointer;padding:0}
+.ph span::before{content:"";position:absolute;inset:6px;border-radius:50%;background:var(--card)}
+.lbl{margin:10px 0 6px;font-size:12px;font-weight:600;color:var(--soft)}
+.grid{display:grid;grid-template-columns:repeat(10,1fr);gap:6px 4px;justify-items:center}
+.d{width:100%;max-width:36px;aspect-ratio:1;border-radius:50%;border:2px solid var(--ring);background:none;color:var(--soft);font:inherit;font-size:11px;font-weight:600;cursor:pointer;padding:0}
 .d.done{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
 .d.today{border-style:dashed;border-color:var(--pale);color:var(--ink)}
 .d.done.today{border-style:solid;box-shadow:0 0 0 3px var(--card),0 0 0 5px var(--pale)}
 .d.future{opacity:.55}
-.btns{display:flex;gap:10px;margin-top:20px}
-.btns button{flex:1;padding:14px 8px;border-radius:14px;border:2px solid var(--ring);background:var(--track);color:var(--on-track);font:inherit;font-weight:600;font-size:14px;cursor:pointer}
+.btns{display:flex;gap:8px;margin-top:12px}
+.btns button{flex:1;padding:9px 6px;border-radius:12px;border:2px solid var(--ring);background:var(--track);color:var(--on-track);font:inherit;font-weight:600;font-size:14px;cursor:pointer}
 .btns button.main{background:var(--pale);color:var(--pale-ink);border-color:var(--pale);flex:1.3}
 button:focus-visible{outline:3px solid var(--pale);outline-offset:2px}
 .set{margin-top:16px;padding:14px;border-radius:16px;background:rgba(0,0,0,.15);display:none;gap:10px;flex-direction:column;font-size:13px}
@@ -56,7 +60,7 @@ button:focus-visible{outline:3px solid var(--pale);outline-offset:2px}
 .sw button{width:40px;height:40px;border-radius:50%;border:2px solid var(--ring);cursor:pointer;padding:0}
 .sw button.on{box-shadow:0 0 0 3px var(--card),0 0 0 5px var(--pale)}
 .set .row{display:flex;gap:8px}.set .row label{flex:1}
-.msg{margin-top:12px;text-align:center;font-size:13px;color:var(--soft);min-height:1.2em}
+.msg{margin-top:6px;text-align:center;font-size:12px;color:var(--soft);min-height:1.2em}
 </style>
 </head>
 <body>
@@ -229,14 +233,19 @@ button:focus-visible{outline:3px solid var(--pale);outline-offset:2px}
   function fit(){
     var w=$("wrap"),vw=document.documentElement.clientWidth,vh=window.innerHeight;
     if(!vw||!vh)return;
-    var wide=vw>=520,W=wide?880:440;
-    document.body.classList.toggle("wide",wide);
-    w.style.width=W+"px";
-    var H=w.offsetHeight,s=Math.min(1,vw/W);
-    if(wide&&!$("set").classList.contains("open"))s=Math.min(s,vh/H);
-    s=Math.max(s,.3);
-    w.style.transform="scale("+s+")";
-    w.style.left=Math.max(0,(vw-W*s)/2)+"px";
+    var open=$("set").classList.contains("open"),best=null;
+    [[true,700],[false,400]].forEach(function(c){
+      document.body.classList.toggle("wide",c[0]);
+      w.style.width=c[1]+"px";
+      var H=w.offsetHeight,s=Math.min(1,vw/c[1]);
+      if(!open)s=Math.min(s,vh/H);
+      if(!best||s>best.s+.001)best={s:s,wide:c[0],W:c[1]};
+    });
+    document.body.classList.toggle("wide",best.wide);
+    w.style.width=best.W+"px";
+    var sc=Math.max(best.s,.25);
+    w.style.transform="scale("+sc+")";
+    w.style.left=Math.max(0,(vw-best.W*sc)/2)+"px";
   }
   window.addEventListener("resize",fit);
   try{new ResizeObserver(fit).observe($("wrap"))}catch(e){}
